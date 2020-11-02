@@ -5,10 +5,24 @@ jobs:
       - image: circleci/node:12
     steps:
       - checkout
+
+      # Download and cache dependencies
+      #
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
       - run:
           name: install npm dependencies
           command: |
             npm install --save
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      # Unit Tests
       - run:
           name: Run unit tests
           command: |
@@ -17,6 +31,7 @@ jobs:
           path: coverage
       - store_artifacts:
           path: coverage
+
 workflows:
   build_test:
     jobs:
