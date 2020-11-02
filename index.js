@@ -42,20 +42,27 @@ app.get(basePath + '/getSquare/:id', (req, res) => {
 
   // `);
 
+  res.setHeader('Content-Type', 'application/json');
+  if (typeof req.headers[headerRequestIdTokenName] !== 'undefined') {
+    res.setHeader('x-response-header-square', req.headers[headerRequestIdTokenName]);
+  }
   const output = {};
   output[id] = id * id;
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('x-response-header-square', req.headers[headerRequestIdTokenName]);
+
   res.send(output);
 });
 
 app.get(basePath + '/getCube/:id', (req, res) => {
   const { id } = req.params;
 
+  res.setHeader('Content-Type', 'application/json');
+  if (typeof req.headers[headerRequestIdTokenName] !== 'undefined') {
+    res.setHeader('x-response-header-square', req.headers[headerRequestIdTokenName]);
+  }
+
   const output = {};
   output[id] = id * id * id;
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('x-response-header-cube', req.headers[headerRequestIdTokenName]);
+
   res.send(output);
 });
 
@@ -64,12 +71,15 @@ app.post(basePath + '/values', async (req, res) => {
 
   console.log(`POST API INPUT -  : ${index}`);
 
+  res.setHeader('Content-Type', 'application/json');
+  if (typeof req.headers[headerRequestIdTokenName] !== 'undefined') {
+    res.setHeader('x-response-header-square', req.headers[headerRequestIdTokenName]);
+  }
+
   if (parseInt(index) > 40) {
     return res.status(422).send('Index too high');
   }
 
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('x-response-header-values', req.headers[headerRequestIdTokenName]);
   res.send({ index: index });
 });
 
