@@ -16,7 +16,7 @@ jobs:
       - store_test_results:
           path: coverage
       - store_artifacts:
-          path: coverage_artifacts
+          path: coverage
 workflows:
   build_test:
     jobs:
