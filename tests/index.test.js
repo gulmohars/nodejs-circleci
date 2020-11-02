@@ -3,6 +3,6 @@ describe('My Test Suite', () => {
     expect(true).toEqual(true);
   });
   it('My Failure Test Case', () => {
-    expect(false).toEqual(false);
+    expect(false).toEqual(true);
   });
 });
