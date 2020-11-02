@@ -1,38 +1,76 @@
 version: 2.1
 jobs:
-  run_tests:
+  build:
     docker:
       - image: circleci/node:12
+        environment:
+          CHROME_BIN: '/usr/bin/google-chrome'
     steps:
       - checkout
-
-      # Download and cache dependencies
-      #
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
       - run:
           name: install npm dependencies
           command: |
+            echo 'export TAG=0.1.${CIRCLE_BUILD_NUM}' >> $BASH_ENV
+            echo 'export IMAGE_NAME=node-circleci-docker' >> $BASH_ENV 
             npm install --save
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-
-      # Unit Tests
       - run:
           name: Run unit tests
           command: |
             npm run test
-      - store_test_results:
-          path: coverage
-      - store_artifacts:
-          path: coverage
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Build and push Docker image
+          command: |
+            docker build -t gulmohar/$IMAGE_NAME:$TAG .
+            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
+            docker push gulmohar/$IMAGE_NAME:$TAG
+      # - run:
+      #     name: Deploy app to Digital Ocean Server via Docker
+      #     command: |
+      #       ssh -o StrictHostKeyChecking=no root@hello.dpunks.org "/bin/bash ./deploy_app.sh ariv3ra/$IMAGE_NAME:$TAG"
 
-workflows:
-  build_test:
-    jobs:
-      - run_tests
+# workflows:
+#   build_test:
+#     jobs:
+#       - run_tests
+
+##########################################
+
+# version: 2.1
+# jobs:
+#   run_tests:
+#     docker:
+#       - image: circleci/node:12
+#     steps:
+#       - checkout
+
+#       # Download and cache dependencies
+#       #
+#       - restore_cache:
+#           keys:
+#             - v1-dependencies-{{ checksum "package.json" }}
+#             - v1-dependencies- # fallback to using the latest cache if no exact match is found
+#       - run:
+#           name: install npm dependencies
+#           command: |
+#             npm install --save
+#       - save_cache:
+#           key: v1-dependencies-{{ checksum "package.json" }}
+#           paths:
+#             - node_modules
+
+#       # Unit Tests
+#       - run:
+#           name: Run unit tests
+#           command: |
+#             npm run test
+#       - store_test_results:
+#           path: coverage
+#       - store_artifacts:
+#           path: coverage
+
+# workflows:
+#   build_test:
+#     jobs:
+#       - run_tests
